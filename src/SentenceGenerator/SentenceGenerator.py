@@ -110,4 +110,4 @@ class SentenceGenerator:
             if re.match("{.*}", pattern) is not None:
                 print("WARNING: unfilled pattern detected")
             sentences.append({"sentence":" ".join(pattern.split()), "tags": tags})
-        return sentences
+        return {"sentences":sentences, "count":len(sentences)}
