@@ -1,0 +1,42 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://ugofresh.chatbot/classes.schema.json",
+    "title": "Classes",
+    "description": "A list of classes and their instances",
+    "type": "object",
+    "properties": {
+        "classes":{
+            "description":"The classes",
+            "type":"object",
+            "properties":{
+                "id":{
+                    "description":"The class referenced by its id",
+                    "type":"object",
+                    "properties":{
+                        "label":{
+                            "description":"The class label, or secondary, mor specialized type of the class",
+                            "type":"string"
+                        },
+                        "type":{
+                            "description":"The primary type of the class",
+                            "type":"string"
+                        }
+                    },
+                    "required":["type"]
+                }
+            },
+            "required":["id"]
+        },
+        "instances":{
+            "description":"Classes instances",
+            "type":"object",
+            "properties":{
+                ".*":{
+                    "description":"Instance name as key, referencing the class id this object is an instance of",
+                    "type":"string"
+                }
+            }
+        },
+        "required":["classes", "instances"]
+    }
+}
