@@ -1,15 +1,153 @@
 [
   {
     "sentence": "J'ai 500kg d'aubergines type Grafiti vari\u00e9t\u00e9 Angela en cagette qui viennent de France.",
-    "tags": []
+    "tags": [
+      {
+        "start": 5,
+        "end": 8,
+        "name": "UGO_Quantity"
+      },
+      {
+        "start": 8,
+        "end": 10,
+        "name": "UGO_Quantity_Unit"
+      },
+      {
+        "start": 13,
+        "end": 23,
+        "name": "UGO_Sub_Family"
+      },
+      {
+        "start": 29,
+        "end": 36,
+        "name": "UGO_Variety"
+      },
+      {
+        "start": 45,
+        "end": 51,
+        "name": "UGO_Variety"
+      },
+      {
+        "start": 55,
+        "end": 62,
+        "name": "UGO_Conditioning"
+      },
+      {
+        "start": 79,
+        "end": 85,
+        "name": "UGO_Origin"
+      }
+    ]
   },
   {
     "sentence": "Ajoutez une offre de 20 colis de 12 Batavia voltron d'Espagne calibre 300g \u00e0 7 euros 50.",
-    "tags": []
+    "tags": [
+      {
+        "start": 21,
+        "end": 23,
+        "name": "UGO_Quantity"
+      },
+      {
+        "start": 36,
+        "end": 43,
+        "name": "UGO_Sub_Family"
+      },
+      {
+        "start": 44,
+        "end": 51,
+        "name": "UGO_Variety"
+      },
+      {
+        "start": 24,
+        "end": 35,
+        "name": "UGO_Conditioning"
+      },
+      {
+        "start": 54,
+        "end": 61,
+        "name": "UGO_Origin"
+      },
+      {
+        "start": 70,
+        "end": 73,
+        "name": "UGO_Calibre"
+      },
+      {
+        "start": 73,
+        "end": 74,
+        "name": "UGO_Calibre_Unit"
+      },
+      {
+        "start": 77,
+        "end": 87,
+        "name": "UGO_Price"
+      }
+    ]
   },
   {
     "sentence": "Des abricots rouges du Roussillon AOC bio en cagette de 20kg, j'en ai 50, je les vends \u00e0 60 euros.",
-    "tags": []
+    "tags": [
+      {
+        "start": 21,
+        "end": 23,
+        "name": "UGO_Quantity"
+      },
+      {
+        "start": 4,
+        "end": 12,
+        "name": "UGO_Sub_Family"
+      },
+      {
+        "start": 4,
+        "end": 12,
+        "name": "UGO_Variety"
+      },
+      {
+        "start": 4,
+        "end": 19,
+        "name": "UGO_Variety"
+      },
+      {
+        "start": 13,
+        "end": 33,
+        "name": "UGO_Variety"
+      },
+      {
+        "start": 4,
+        "end": 33,
+        "name": "UGO_Variety"
+      },
+      {
+        "start": 34,
+        "end": 37,
+        "name": "UGO_Label"
+      },
+      {
+        "start": 38,
+        "end": 41,
+        "name": "UGO_Label"
+      },
+      {
+        "start": 34,
+        "end": 41,
+        "name": "UGO_Label"
+      },
+      {
+        "start": 45,
+        "end": 60,
+        "name": "UGO_Conditioning"
+      },
+      {
+        "start": 70,
+        "end": 72,
+        "name": "UGO_Quantity"
+      },
+      {
+        "start": 79,
+        "end": 87,
+        "name": "UGO_Price"
+      }
+    ]
   },
   {
     "sentence": "Je cherche 500 kilos de tomate fran\u00e7aise coeur de boeuf d'un gros calibre.",
