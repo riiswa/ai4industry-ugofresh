@@ -12,6 +12,7 @@ from spacy.tokens import token
 import string
 import pandas as pd
 import json
+from nltk import pos_tag
 
 nltk.download('wordnet')
 nltk.download('punkt')
@@ -39,7 +40,7 @@ def lemma(sentence):
     return [token.lemma_ for token in nlp(" ".join(sentence))]
 
 def removeStopWords(sentence):
-  return [word for word in tokenize(sentence) if not word in STOP_WORDS]
+    return [word for word in tokenize(sentence) if not word in STOP_WORDS  ]
 
 def removePonct(sentence):
   return [word for word in sentence if word not in string.punctuation]
@@ -63,7 +64,6 @@ def csv_to_json(csv_file, json_file):
     for index, row in df.iterrows():
         # ajouter une entrée au dictionnaire avec la valeur de la colonne Valeur comme clé et la valeur de la colonne Texte comme valeur
         data[row['Valeur']] = row['Texte']
-    
     with open(json_file, 'w') as f:
         json.dump(data, f)
 
@@ -73,7 +73,7 @@ def extract_info(sentence):
     df_subfamily=csv_to_json('/home/settar/Bureau/UGOFresh/ai4industry-ugofresh/DataCSV/Sous-famille.csv', 'Sous-famille.json')
 
     with open('Sous-famille.json') as json_file:
-        data = json.load(json_file, )
+        data = json.load(json_file)
         
     doc = nlp(" ".join(traitement(sentence)))
     #print(doc)
@@ -87,12 +87,11 @@ def extract_info(sentence):
     unite = ""
 
     for token in doc:
-        if token.pos_ == "NOUN":
+        if token.pos_ == "NOUN" or token.pos_ == "PROPN":
             for val in data:
-                #print(data[val])
-                #print(token.text.lower())
                 if token.text.lower() in data[val].lower():
-                    #print("ok")  
+                    print(token.text)
+                    print(traitement(data[val]))
                     sous_famille = val
         elif token.like_num:
             quantite = token.text
@@ -101,7 +100,7 @@ def extract_info(sentence):
     return {"sous_famille": sous_famille, "quantite": quantite, "unite": unite}
 
 
-sentence = "J'ai 300kg de Echalotte type grafiti variété angela, en cagette qui viennent de France."
+sentence = "je veux 300kg de Noix, en cagette qui viennent de France."
 info = extract_info(sentence)
 print(info)
 
