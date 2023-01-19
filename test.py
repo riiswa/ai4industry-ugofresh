@@ -37,23 +37,47 @@ def extract_info(sentence,
                 if to_f_type == 'num':
                     res[data]['num'] = to_f
                     to_f_type = ""
+                else:
+                    to_f_type = data
         else:
             res[data] = {'text': tok}
             if to_f_type == 'num':
                 res[data]['num'] = to_f
                 to_f_type = ""
+            else:
+                to_f_type = data
+
+        return to_f, to_f_type
 
 
     for token in doc:
         if token.pos_ == "NOUN":
             tok = token.text.lower()
-            if tok in family:
-                res['famille'] = tok
-            if tok in sub_family:
-                res['sous_famille'] = tok
-            if tok in variety:
-                res['variete'] = tok
-            elif tok in label:
+            for fam in family:
+                if tok in fam:
+                    if 'famille' in res:
+                        tmp_tok = res['famille'] + " " + tok
+                        if tmp_tok in fam:
+                            res['famille'] = tmp_tok
+                    else:
+                        res['famille'] = tok
+            for sfam in sub_family:
+                if tok in sfam:
+                    if 'sous_famille' in res:
+                        tmp_tok = res['sous_famille'] + " " + tok
+                        if tmp_tok in sfam:
+                            res['sous_famille'] = tmp_tok
+                    else:
+                        res['sous_famille'] = tok
+            for var in variety:
+                if tok in var:
+                    if 'variety' in res:
+                        tmp_tok = res['variety'] + " " + tok
+                        if tmp_tok in var:
+                            res['variety'] = tmp_tok
+                    else:
+                        res['variety'] = tok
+            if tok in label:
                 if 'label' in res:
                     res['labels'].append(tok)
                 else:    
@@ -61,34 +85,21 @@ def extract_info(sentence,
             elif tok in country:
                 res['origine'] = tok
             elif tok in conditioning:
-                if 'conditionnement' in res:
-                    if 'num' not in res['conditionnement']:
-                        res['conditionnement']['text'] = tok
-                        if to_fill_type == 'num':
-                            res['conditionnement']['num'] = to_fill
-                            to_fill_type = ""
-                else:
-                    res['conditionnement'] = {'text': tok}
-                    if to_fill_type == 'num':
-                        res['conditionnement']['num'] = to_fill
-                        to_fill_type = ""
+                to_fill_type = data_with_num('conditionnement', tok, to_fill, to_fill_type)
             elif tok in quantity:
-                if 'quantity' in res:
-                    if 'num' not in res['quantity']:
-                        res['quantity']['text'] = tok
-                        if to_fill_type == 'num':
-                            res['quantity']['num'] = to_fill
-                            to_fill_type = ""
-                else:
-                    res['quantity'] = {'text': tok}
-                    if to_fill_type == 'num':
-                        res['quantity']['num'] = to_fill
-                        to_fill_type = ""
-
-
-                    
+                to_fill_type = data_with_num('quantité', tok, to_fill, to_fill_type)
+            elif tok in calibre:
+                to_fill_type = data_with_num('calibre', tok, to_fill, to_fill_type)
+            elif tok in price:
+                to_fill_type = data_with_num('prix', tok, to_fill, to_fill_type)
         elif token.like_num:
-            pass
+            tok = int(token) if token.is_digit() else token
+            if to_fill_type not in ["", "num"]:
+                res[to_fill_type]['num'] = tok
+                to_fill_type = ""
+            else:
+                to_fill_type = "num"
+                to_fill = tok
     return res
 
 
