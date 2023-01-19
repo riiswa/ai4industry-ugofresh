@@ -4,6 +4,7 @@ import spacy
 from typing import List, Optional, Dict
 import pickle
 
+import fr_core_news_md  
 from transformers import CamembertModel, CamembertTokenizer
 import torch
 from pynndescent import NNDescent # https://github.com/erikbern/ann-benchmarks
@@ -31,7 +32,7 @@ class EmbeddingManager:
         self.tokenizer = CamembertTokenizer.from_pretrained("camembert-base")
         self.model = CamembertModel.from_pretrained("camembert-base")
         self.model.eval()
-        self.nlp = spacy.load("fr_dep_news_trf")
+        self.nlp = fr_core_news_md.load()
         self.index: Optional[NNDescent] = None
         self.entities = entities
         self.sentence_groups: Dict[tuple[str, ...], List[Entity]] = {}
@@ -39,13 +40,14 @@ class EmbeddingManager:
             group = self.group(entity.text)
             self.sentence_groups[group] = self.sentence_groups.get(group, []) + [entity]
 
-        with open("sentence_groups.pkl", 'wb') as filehandler:
-            pickle.dump(self.sentence_groups, filehandler)
-
         self.indexes: Dict[tuple[str, ...], NNDescent] = {
             group: NNDescent(torch.stack([self.embed(entity.text) for entity in entities]), "euclidean")
             for group, entities in tqdm(self.sentence_groups.items())
         }
+
+    def save(self):
+        with open("sentence_groups.pkl", 'wb') as filehandler:
+            pickle.dump(self.sentence_groups, filehandler)
 
         with open("indexes.pkl", 'wb') as filehandler:
             pickle.dump(self.indexes, filehandler)
@@ -55,11 +57,11 @@ class EmbeddingManager:
         em = EmbeddingManager([])
         with open(sentence_groups_file, 'rb') as filehandler:
             em.sentence_groups = pickle.load(filehandler)
-            print(em.sentence_groups)
+            print("sentence groups have been loaded")
 
         with open(indexes_file, 'rb') as filehandler:
             em.indexes = pickle.load(filehandler)
-            print(em.indexes)
+            print("em.indexes have been loadded")
 
         return em
 
@@ -81,7 +83,7 @@ class EmbeddingManager:
 
 if __name__ == "__main__":
     entities = create_entities("data.xlsx")
-    em = EmbeddingManager(list(entities))
+    em = EmbeddingManager.load()
     print(em.predict("aubergine"))
     #em = EmbeddingManager.load()
     #print(list(em.sentence_groups.keys()))
