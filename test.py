@@ -64,12 +64,9 @@ def csv_to_json(csv_file, json_file):
         # ajouter une entrée au dictionnaire avec la valeur de la colonne Valeur comme clé et la valeur de la colonne Texte comme valeur
         data[row['Valeur']] = row['Texte']
     
-    print(data)
-    # écrire le dictionnaire dans un fichier json
-    '''with open(json_file, 'w') as f:
+    with open(json_file, 'w') as f:
         json.dump(data, f)
 
-'''
 
 def extract_info(sentence):
     
@@ -77,45 +74,34 @@ def extract_info(sentence):
 
     with open('Sous-famille.json') as json_file:
         data = json.load(json_file, )
-        print(data["Texte"])
-        for sentence in data['Texte']:
-            lemmatized_sentence = traitement(sentence)
-            print(lemmatized_sentence)
+        
+    doc = nlp(" ".join(traitement(sentence)))
+    #print(doc)
+
+    famille = ""
+    conditionnement = ""
+    sous_famille = ""
+    variete = ""
+    origine = ""
+    quantite = ""
+    unite = ""
+
+    for token in doc:
+        if token.pos_ == "NOUN":
+            for val in data:
+                #print(data[val])
+                #print(token.text.lower())
+                if token.text.lower() in data[val].lower():
+                    #print("ok")  
+                    sous_famille = val
+        elif token.like_num:
+            quantite = token.text
+        elif token.text.lower() in ["kg", "kilogramme", "kilogrammes"]:
+            unite = "kilogramme"
+    return {"sous_famille": sous_famille, "quantite": quantite, "unite": unite}
 
 
-
-
-    # doc = nlp(" ".join(traitement(sentence)))
-    # print(doc)
-
-    # famille = ""
-    # conditionnement = ""
-    # sous_famille = ""
-    # variete = ""
-    # origine = ""
-    # quantite = ""
-    # unite = ""
-
-    # for token in doc:
-    #     if token.pos_ == "NOUN":
-    #         if token.text.lower() in df_subfamily["Texte"].str.lower():  
-    #             sous_famille = df_subfamily["Valeur"]["Texte" == token.text.lower()]
-    #             print(famille)
-    #         elif token.text.lower() in df_packaging["Synonymes"].str.lower():
-    #             conditionnement = df_packaging["Valeur"]["Synonymes" == token.text.lower()]
-    #         elif token.text.lower() in df_variety["Texte"].str.lower():
-    #             variete = df_variety["Valeur"]["Texte" == token.text.lower()]
-    #         elif token.text.lower() in df_origin["Texte"].str.lower():
-    #             origine = df_origin["Valeur"]["Texte" == token.text.lower()]
-    #     elif token.like_num:
-    #         quantite = token.text
-    #     elif token.text.lower() in ["kg", "kilogramme", "kilogrammes"]:
-    #         unite = "kilogramme"
-    # return {"famille": famille, "conditionnement": conditionnement, "sous_famille": sous_famille, "variete": variete, "origine": origine, "quantite": quantite, "unite": unite}
-
-
-sentence = "J'ai 300kg d'aubergines type grafiti variété angela, en cagette qui viennent de France."
-print(traitement(sentence))
-#info = extract_info(sentence)
-
+sentence = "J'ai 300kg de Echalotte type grafiti variété angela, en cagette qui viennent de France."
+info = extract_info(sentence)
+print(info)
 
