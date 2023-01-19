@@ -7,9 +7,12 @@ import pickle
 import fr_core_news_md  
 from transformers import CamembertModel, CamembertTokenizer
 import torch
-from pynndescent import NNDescent # https://github.com/erikbern/ann-benchmarks
+from pynndescent import NNDescent  # https://github.com/erikbern/ann-benchmarks
 import pandas as pd
 from tqdm import tqdm
+
+from pprint import pprint
+
 
 @dataclass
 class Entity:
@@ -29,6 +32,7 @@ def create_entities(file: str):
 
 class EmbeddingManager:
     def __init__(self, entities: List[Entity]):
+        pprint(entities)
         self.tokenizer = CamembertTokenizer.from_pretrained("camembert-base")
         self.model = CamembertModel.from_pretrained("camembert-base")
         self.model.eval()
@@ -41,7 +45,7 @@ class EmbeddingManager:
             self.sentence_groups[group] = self.sentence_groups.get(group, []) + [entity]
 
         self.indexes: Dict[tuple[str, ...], NNDescent] = {
-            group: NNDescent(torch.stack([self.embed(entity.text) for entity in entities]), "euclidean")
+            group: NNDescent(torch.stack([self.embed(entity.text) for entity in entities]), "cosine")
             for group, entities in tqdm(self.sentence_groups.items())
         }
 
@@ -66,7 +70,7 @@ class EmbeddingManager:
         return em
 
     def embed(self, sentence: str) -> torch.Tensor:
-        tokenized_sentence = self.tokenizer.tokenize(sentence)
+        tokenized_sentence = [token for token in self.tokenizer.tokenize(sentence.lower()) if token != "s"]
         encoded_sentence = self.tokenizer.encode(tokenized_sentence)
         encoded_sentence = torch.tensor(encoded_sentence)[1:-1].unsqueeze(0)
         return self.model(encoded_sentence).last_hidden_state.detach().squeeze(0).mean(dim=0)
@@ -76,15 +80,19 @@ class EmbeddingManager:
         return tuple(token.pos_ for token in doc)
 
     def predict(self, sentence: str):
-        group = self.group(sentence)
-        print(self.sentence_groups[group])
+        group = self.group(sentence.lower())
         return group, self.indexes[group].query(self.embed(sentence).unsqueeze(0), k=5)
 
 
 if __name__ == "__main__":
     entities = create_entities("data.xlsx")
-    em = EmbeddingManager.load()
-    print(em.predict("aubergine"))
-    #em = EmbeddingManager.load()
-    #print(list(em.sentence_groups.keys()))
-    #em.predict("aubergine")
+    em = EmbeddingManager(list(entities))
+    for word in ["aubergine", "tomate", "très fin", "inférieur à 60 centimètres"]:
+        group, (idx, distances) = em.predict(word)
+        print("Word:", word)
+        for i in idx[0]:
+            print(em.sentence_groups[group][i])
+
+    # em = EmbeddingManager.load()
+    # print(list(em.sentence_groups.keys()))
+    # em.predict("aubergine")
