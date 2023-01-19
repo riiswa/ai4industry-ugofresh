@@ -21,7 +21,7 @@ class Entity:
 
 
 def create_entities(file: str):
-    xl = pd.ExcelFile("data.xlsx")
+    xl = pd.ExcelFile(file)
     for sheet_name in xl.sheet_names:
         for index, row in xl.parse(sheet_name).iterrows():
             target = row.values[0]
@@ -87,7 +87,7 @@ class EmbeddingManager:
 if __name__ == "__main__":
     entities = create_entities("data.xlsx")
     em = EmbeddingManager(list(entities))
-    for word in ["aubergine", "tomate", "très fin", "inférieur à 60 centimètres"]:
+    for word in ["aubergine", "tomate", "très fin", "inférieur à 60 centimètres", "abricot"]:
         group, (idx, distances) = em.predict(word)
         print("Word:", word)
         for i in idx[0]:
