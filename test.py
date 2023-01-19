@@ -20,10 +20,8 @@ def extract_info(sentence,
     quantity = [],
     price = []
 ):
-    # Tokenisation de la phrase
-    tokens = word_tokenize(sentence)
     # Analyse de la phrase avec Spacy
-    doc = nlp(" ".join(tokens))
+    doc = nlp(sentence.replace('\'', ' '))
 
     res = {}
 
@@ -51,32 +49,38 @@ def extract_info(sentence,
 
 
     for token in doc:
-        if token.pos_ == "NOUN":
+        if token.pos_ != "NUM":
             tok = token.text.lower()
             for fam in family:
-                if tok in fam:
+                if tok in fam.split(' '):
                     if 'famille' in res:
-                        tmp_tok = res['famille'] + " " + tok
-                        if tmp_tok in fam:
-                            res['famille'] = tmp_tok
+                        if fam in res['famille']:
+                            res['famille'][fam].append(tok)
+                        else:
+                            res['famille'][fam] = [tok]
                     else:
-                        res['famille'] = tok
+                        res['famille'] = {}
+                        res['famille'][fam] = [tok]
             for sfam in sub_family:
-                if tok in sfam:
+                if tok in sfam.split(' '):
                     if 'sous_famille' in res:
-                        tmp_tok = res['sous_famille'] + " " + tok
-                        if tmp_tok in sfam:
-                            res['sous_famille'] = tmp_tok
+                        if sfam in res['sous_famille']:
+                            res['sous_famille'][sfam].append(tok)
+                        else:
+                            res['sous_famille'][sfam] = [tok]
                     else:
-                        res['sous_famille'] = tok
+                        res['sous_famille'] = {}
+                        res['sous_famille'][sfam] = [tok]
             for var in variety:
-                if tok in var:
-                    if 'variety' in res:
-                        tmp_tok = res['variety'] + " " + tok
-                        if tmp_tok in var:
-                            res['variety'] = tmp_tok
+                if tok in var.split(' '):
+                    if 'variété' in res:
+                        if var in res['variété']:
+                            res['variété'][var].append(tok)
+                        else:
+                            res['variété'][var] = [tok]
                     else:
-                        res['variety'] = tok
+                        res['variété'] = {}
+                        res['variété'][var] = [tok]
             if tok in label:
                 if 'label' in res:
                     res['labels'].append(tok)
@@ -93,16 +97,62 @@ def extract_info(sentence,
             elif tok in price:
                 to_fill_type = data_with_num('prix', tok, to_fill, to_fill_type)
         elif token.like_num:
-            tok = int(token) if token.is_digit() else token
+            tok = token.text.lower()
             if to_fill_type not in ["", "num"]:
                 res[to_fill_type]['num'] = tok
                 to_fill_type = ""
             else:
                 to_fill_type = "num"
                 to_fill = tok
+    
+    def cut_too_much(res_data):
+        final_variety = {}
+        for key, values in res_data.items():
+            res_var = " ".join(values)
+            if res_var in final_variety:
+                final_variety[res_var].append(key)
+            else:
+                final_variety[res_var] = [key]
+                
+        keys = list(final_variety.keys())
+        
+        for k in keys:
+            for k_bis in keys:
+                if k in k_bis and k != k_bis:
+                    del final_variety[k]
+                    break
+        return final_variety
+    
+    if 'famille' in res:
+        res['famille'] = cut_too_much('famille')
+    if 'sous_famille' in res:
+        res['sous_famille'] = cut_too_much('sous_famille')
+    if 'variété' in res:
+        res['variété'] = cut_too_much('variété')
+    
     return res
 
 
-sentence = "J'ai 300kg d'aubergines type grafiti variété angela, en cagette qui viennent de France."
-info = extract_info(sentence)
+sentence = "J'ai 300kg d'aubergine type graffiti variété angela, en cagette qui viennent de France."
+
+family=["plante aromatique","fruit rouge","bulbe","chou","céréale"]
+family = [x.lower() for x in family]
+sub_family=["Aubergine","Avocat","Banane","Basilic","Laurier","Fève"]
+sub_family = [x.lower() for x in sub_family]
+variety=["Asperge blanche","Asperge blanche/violette","Asperge verte","Asperge violette","Aubergine Japonaise","Aubergine","Aubergine Angela","Aubergine Fine Longue","Aubergine Graffiti","Aubergine Noire","Aubergine Perline","Aubergine ronde violette","Aubergine zébrée","Avocat Hass","Avocat","Avocat Bacon"]
+variety = [x.lower() for x in variety]
+quantity=["Kg", "Kilogramme", "Colis"]
+quantity = [x.lower() for x in quantity]
+
+info = extract_info(sentence,
+    family=family,
+    sub_family=sub_family,
+    variety=variety,
+    calibre=[],
+    conditioning=[],
+    country=[],
+    label=[],
+    quantity=quantity,
+    price=[]
+)
 print(info)
