@@ -3,3 +3,6 @@ torch==1.13.1
 transformers==4.25.1
 pynndescent~=0.5.8
 spacy~=3.4.4
+pandas~=1.5.2
+nltk~=3.8.1
+tqdm~=4.64.1
