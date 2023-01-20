@@ -6,7 +6,7 @@ Create a virtual env and run `pip install requirements.txt`
 
 ## Usage 
 
-You can read the `main` to see an example of usage in the file `srx/embedding_manager.py`
+You can read the `main` to see an example of usage in the file `src/embedding_manager.py`
 
 ## Description
 
