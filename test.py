@@ -1,6 +1,12 @@
 import nltk
-import spacy
 from nltk import word_tokenize
+
+import spacy
+from spacy.lang.fr.stop_words import STOP_WORDS
+
+import pandas as pd
+import string
+import json
 
 nltk.download('wordnet')
 nltk.download('punkt')
@@ -8,6 +14,39 @@ nltk.download('stopwords')
 
 # Chargement du modèle en français de Spacy
 nlp = spacy.load("fr_core_news_sm")
+
+def tokenize(sentence):
+  for token in sentence:
+    return [token.text for token in sentence]
+
+def lemma(sentence):
+    return " ".join([token.lemma_ for token in nlp(sentence)])
+
+def removeStopWords(sentence):
+    return [word for word in tokenize(sentence) if not word in STOP_WORDS  ]
+
+def removePonct(sentence):
+  return [word for word in sentence if word not in string.punctuation]
+
+def traitement(sentence):
+    onesentence=nlp(sentence)
+    newsentence=nlp(onesentence)
+    removed_stpwrds= removeStopWords(newsentence)
+    removed_ponct = removePonct(removed_stpwrds)
+    lemmatized_sentence = lemma(removed_ponct)
+    return lemmatized_sentence
+
+def csv_to_json(csv_file, json_file):
+    # lire le fichier csv en utilisant pandas
+    df = pd.read_csv(csv_file)
+    # créer un dictionnaire vide
+    data = {}
+    # itérer sur les lignes du fichier csv
+    for index, row in df.iterrows():
+        # ajouter une entrée au dictionnaire avec la valeur de la colonne Valeur comme clé et la valeur de la colonne Texte comme valeur
+        data[row['Valeur']] = lemma(row['Texte']).lower()
+    with open(json_file, 'w') as f:
+        json.dump(data, f)
 
 def extract_info(sentence,
     family = [],
@@ -124,35 +163,55 @@ def extract_info(sentence,
         return final_variety
     
     if 'famille' in res:
-        res['famille'] = cut_too_much('famille')
+        res['famille'] = cut_too_much(res['famille'])
     if 'sous_famille' in res:
-        res['sous_famille'] = cut_too_much('sous_famille')
+        res['sous_famille'] = cut_too_much(res['sous_famille'])
     if 'variété' in res:
-        res['variété'] = cut_too_much('variété')
+        res['variété'] = cut_too_much(res['variété'])
     
     return res
 
 
-sentence = "J'ai 300kg d'aubergine type graffiti variété angela, en cagette qui viennent de France."
 
-family=["plante aromatique","fruit rouge","bulbe","chou","céréale"]
-family = [x.lower() for x in family]
-sub_family=["Aubergine","Avocat","Banane","Basilic","Laurier","Fève"]
-sub_family = [x.lower() for x in sub_family]
-variety=["Asperge blanche","Asperge blanche/violette","Asperge verte","Asperge violette","Aubergine Japonaise","Aubergine","Aubergine Angela","Aubergine Fine Longue","Aubergine Graffiti","Aubergine Noire","Aubergine Perline","Aubergine ronde violette","Aubergine zébrée","Avocat Hass","Avocat","Avocat Bacon"]
-variety = [x.lower() for x in variety]
-quantity=["Kg", "Kilogramme", "Colis"]
-quantity = [x.lower() for x in quantity]
+
+# csv_to_json('./data/Famille.csv', "./json/Famille.json")
+# csv_to_json('./data/Sous-famille.csv', './json/Sous-famille.json')
+# csv_to_json('./data/Variété.csv', './json/Variété.json')
+# csv_to_json('./data/Pays.csv', './json/Pays.json')
+# csv_to_json('./data/Conditionnement.csv', './json/Conditionnement.json')
+# csv_to_json('./data/Quantité.csv', './json/Quantité.json')
+# csv_to_json('./data/Calibre.csv', './json/Calibre.json')
+# csv_to_json('./data/Labels.csv', './json/Labels.json')
+
+with open('./json/Famille.json') as json_file:
+    family = json.load(json_file).values()
+with open('./json/Sous-famille.json') as json_file:
+    sub_family = json.load(json_file).values()
+with open('./json/Variété.json') as json_file:
+    variety = json.load(json_file).values()
+with open('./json/Pays.json') as json_file:
+    calibre = json.load(json_file).values()
+with open('./json/Conditionnement.json') as json_file:
+    conditioning = json.load(json_file).values()
+with open('./json/Quantité.json') as json_file:
+    country = json.load(json_file).values()
+with open('./json/Calibre.json') as json_file:
+    label = json.load(json_file).values()
+with open('./json/Labels.json') as json_file:
+    quantity = json.load(json_file).values()
+    
+
+sentence = "J'ai 300kg d'aubergine type graffiti variété angela, en cagette qui viennent France."
 
 info = extract_info(sentence,
     family=family,
     sub_family=sub_family,
     variety=variety,
-    calibre=[],
-    conditioning=[],
-    country=[],
-    label=[],
+    calibre=calibre,
+    conditioning=conditioning,
+    country=country,
+    label=label,
     quantity=quantity,
-    price=[]
+    price=["euros", "eur", "€", "euro", "prix"]
 )
 print(info)
